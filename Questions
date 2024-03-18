@@ -1,0 +1,99 @@
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata)
+
+cig.data <- readRDS('data/output/TaxBurden_data.rds')
+
+cig.data <- cig.data %>% group_by(state) %>% arrange(state, Year) %>%
+    mutate(tax_change = tax_state - lag(tax_state),
+        tax_change_d = ifelse(tax_change==0,0,1),
+        price_cpi_2012 = cost_per_pack*(price_cpi/index),
+        total_tax_cpi_2012 = tax_dollar*(price_cpi/index),
+        ln_tax_2012 = log(total_tax_cpi_2012),
+        ln_sales = log(sales_per_capita),
+        ln_price_2012 = log(price_cpi_2012))
+
+q1plot <- cig.data %>%
+group_by(Year) %>% filter(Year<1986, Year>1970) %>%
+  summarize(mean_change=mean(tax_change_d)) %>%
+  ggplot(aes(x = as.factor(Year), y = mean_change)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Proportion of States with Change in Cigarette Tax (1970-1985)",
+       x = "Year",
+       y = "Proportion of States with Change") +
+  theme_minimal()
+
+q2plot <- cig.data %>%
+  group_by(Year) %>% filter(Year<2018, Year>1970) %>%
+  ggplot(aes(x=Year)) +
+    geom_line(aes(y = total_tax_cpi_2012, color = "Average Tax"), size = 1.2) +
+    geom_line(aes(y = price_cpi_2012, color = "Average Price"), linetype = "dashed", size = 1.2) +
+    scale_color_manual(values = c("Average Tax" = "blue", "Average Price" = "red")) +
+    labs(title = "Average Tax and Price of Cigarettes (1970-2018)",
+         x = "Year",
+         y = "Amount (in 2012 dollars)",
+         color = "Variable") +
+   theme_minimal()
+
+cig.data.change <- cig.data %>%
+  ungroup() %>%
+  filter(Year == 2012) %>%
+  select(state, p1 = price_cpi_2012) %>%
+  left_join(cig.data %>% 
+              filter(Year == 2012) %>% 
+              select(state, p2 = price_cpi_2012),
+            by = "state") %>%
+  mutate(price_change = p2 - p1)
+
+high.change <- cig.data.change %>% slice_max(price_change, n=5) %>% mutate(change_group="high")
+low.change <- cig.data.change %>% slice_min(price_change, n=5) %>% mutate(change_group="low")
+change.group <- rbind(high.change, low.change)
+
+top.bottom.price <- cig.data %>% ungroup %>%
+  inner_join(change.group %>% select(state, change_group), relationship = "many-to-many",
+  by=("state"))
+
+q3fig <- top.bottom.price %>% filter(change_group=="high") %>%
+  ggplot(aes(x=Year, y=sales_per_capita, color=state)) +
+  labs(x="Year", y="Sales per Capita", color="State") +
+  theme_bw()
+
+q4fig <- top.bottom.price %>% filter(change_group=="low") %>%
+  ggplot(aes(x=Year, y=sales_per_capita, color=state)) +
+  labs(x="Year", y="Sales per Capita", color="State") +
+  theme_bw()
+
+rcig.data <- na.omit(cig.data)
+restricted_cig.data <- subset(rcig.data, Year >= 1970 & Year <= 1990)
+model1 <- lm(ln_sales ~ ln_price_2012, data = restricted_cig.data)
+
+model2 <- ivreg(ln_sales ~ ln_tax_2012 | ln_price_2012, data = restricted_cig.data)
+
+model3 <- lm(ln_sales ~ ln_tax_2012, data = restricted_cig.data)
+
+q91plot <- cig.data %>%
+  group_by(Year) %>% filter(Year<2015, Year>1990) %>%
+  summarize(mean_change=mean(tax_change_d)) %>%
+  ggplot(aes(x = as.factor(Year), y = mean_change)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Proportion of States with Change in Cigarette Tax (1970-1985)",
+       x = "Year",
+       y = "Proportion of States with Change") +
+  theme_minimal()
+
+q92plot <- cig.data %>%
+  group_by(Year) %>% filter(Year<2015, Year>1990) %>%
+  ggplot(aes(x=Year)) +
+    geom_line(aes(y = total_tax_cpi_2012, color = "Average Tax"), size = 1.2) +
+    geom_line(aes(y = price_cpi_2012, color = "Average Price"), linetype = "dashed", size = 1.2) +
+    scale_color_manual(values = c("Average Tax" = "blue", "Average Price" = "red")) +
+    labs(title = "Average Tax and Price of Cigarettes (1970-2018)",
+         x = "Year",
+         y = "Amount (in 2012 dollars)",
+         color = "Variable") +
+   theme_minimal()
+
+
+q93fig <- top.bottom.price %>% filter(change_group=="high") %>%
+  ggplot(aes(x=Year, y=sales_per_capita, color=state)) +
+  labs(x="Year", y="Sales per Capita", color="State") +
+  theme_bw()

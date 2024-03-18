@@ -1,0 +1,54 @@
+---
+title: "Homework 3"
+author: "Varun Saxena"
+format:
+  pdf:
+    output-file: "saxena-v-hwk3-1"
+    output-ext:  "pdf"
+    header-includes:
+      - \usepackage{float}
+      - \floatplacement{table}{H}
+
+---
+
+\newpage
+Repository
+https://github.com/varunsaxena2/saxena-v-hwk3-1/upload
+\noindent 1. Here is the bar graph showing the proportion of states with a change in their cigarette tax in each year from 1970 to 1985.
+
+\newpage
+\noindent 2. Here is the line graph showing the average tax (in 2012 dollars) on cigarettes and the average price of a pack of cigarettes from 1970 to 2018.
+
+
+
+\newpage
+\noindent 3. 
+
+This figure is blank, and I was unable to figure out why this is the case. Please reference my code to see my attempt of this question.
+
+\newpage
+\noindent 4.
+This figure is blank, and I was unable to figure out why this is the case. Please reference my code to see my attempt of this question.
+
+\newpage
+\noindent 5. As it stands right now, the trends are for some reason not displaying on my graphs, so I cannot compare the trends. Please reference my code to see my attempt of this question. 
+
+\newpage 
+\noindent 6. 
+It seems like there is a significant negative association between the ln(sales) and the ln(price).
+
+Edit: This model is no longer working even though I did not change the code. The N/A issues presented in the other regressions below are presenting here as well.
+
+\newpage 
+\noindent 7. The instrumental variable regression did not run. Please reference my code to see my attempt of this question. There was an issue with removing N/A values, which prevented this regression from running. I attempted to use na.omit() to solve this issue, but it did not work.
+
+\newpage
+\noindent 8. This regression did not run. Please reference my code to see my attempt of this question. Similar to question 7, I was unable to remove N/A values from the dataset, which prevented this regression from running.
+
+\newpage
+\noindent 9.
+The third figure returns a blank graph due to it having very similar underlying code to question 3, which also returns a blank graph. Please reference my code to see my attempt of this question.
+
+\newpage
+\noindent 10. 
+Unfortunately, none of the graphs ran well enough for me to analyze the results. However, I can note that the 1991-2015 range displays higher tax rates across the years with a decline in the early 2000s and recent years. While I do not have elasticity estimates, I can gather that this good is relatively inelastic due to the addictive quality of cigarettes.
